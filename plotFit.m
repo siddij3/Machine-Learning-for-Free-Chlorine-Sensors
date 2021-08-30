@@ -1,6 +1,6 @@
 function plotFit(x, y, theta, m)
 
-  plot(x(:, 2), y, 'rx', 'MarkerSize', 10, 'LineWidth', 1.5);
+  plot(x(:, 2), y, 'o', 'MarkerSize', 5, 'LineWidth', 0.75);
   xlabel('Free Chlorine Concentration (ppm) (x)');
   ylabel('Current (µA) (y)');
   hold on;
