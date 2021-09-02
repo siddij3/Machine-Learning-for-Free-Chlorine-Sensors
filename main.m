@@ -21,7 +21,7 @@ end
 
 %% ==================== Part 1: Parsing Data ====================
 
-for num_iterations = 1:length(all_data)
+for num_iterations = 1:1
   
 
   fprintf('Manipulating Data ...\n\n')
@@ -36,33 +36,21 @@ for num_iterations = 1:length(all_data)
 
   fcl_conc = [ones(m, 1), fcl_conc];
 
-  %fprintf('Program paused. Press enter to continue.\n\n');
-  %pause;
-
-  %plotData(fcl_conc, chrono_data);
-
-
   %% ==== Part 2: Regularized Linear Regression Cost and Gradient ===================
 
-  theta = [-10; 10]; 
-  [J, grad] = linearRegCostFunction(fcl_conc, chrono_data, theta, 1);
 
-  %fprintf(['Cost at theta = [-10; 10]: %f \n'], J);
-  fprintf(['Gradient at theta = [-10; 10]:  [%f; %f]\n'], grad(1), grad(2));
-  %fprintf('Program paused. Press enter to continue.\n\n');
-  %pause;
 
 
   %% =========== Part 3: Train Linear Regression =============
 
   lambda = 0;
-  theta = [theta, zeros(2, length(chrono_data-1))];
+  theta = [zeros(2, length(chrono_data))];
 
   for i = 1:length(chrono_data)
     [theta(:, i)] = trainLinearReg(fcl_conc, chrono_data(:, i), lambda);
   end
   %  Plot fit over the data
-  plotFit(fcl_conc, chrono_data, theta, m, csv_files(num_iterations).name);
+  plotFit_reduced(fcl_conc, chrono_data, theta, m, csv_files(num_iterations).name);
   hold off;
 
   fprintf(['Gradient at theta = [%f; %f]:  [%f; %f]\n'], theta(1), theta(2), grad(1), grad(2));

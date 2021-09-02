@@ -1,4 +1,8 @@
-function plotFit(x, y, theta, m, plot_title)
+function plotFit_reduced(x, y, theta, m, plot_title)
+  
+  y = y(:, 40:end);
+  theta = theta(:, 40:end);
+  
   
   figure;
   plot(x(:, 2), y, 'x', 'MarkerSize', 5, 'LineWidth', 0.75);
