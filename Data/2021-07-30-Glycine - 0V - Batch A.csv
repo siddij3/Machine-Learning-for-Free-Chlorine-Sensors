@@ -1,5 +1,5 @@
-10,1,1,24,22,110,10,60,7600,45,0
-GO Conc.,Amine Conc. (mol/L) ,NaOH Conc.  (mol/L),Rxn. Time (hr),Rxn. Temp (°C),Mixing speed (rpm),Drying time (min),Drying Temp (°C),Centrifuge (rpm),Centrifuge (min),Operating V
+0,10,1,1,24,22,110,10,60,7600,45
+Operating Voltage,GO Conc.,Amine Conc. (mol/L) ,NaOH Conc.  (mol/L),Rxn. Time (hr),Rxn. Temp (°C),Mixing speed (rpm),Drying time (min),Drying Temp (°C),Centrifuge (rpm),Centrifuge (min)
 Time,0.64,0.97,3.33,5.72,6.15,7.4,9.07,,,
 0,-4.84E+00,-4.72E+00,-2.79E+01,-4.20E+01,-3.20E+01,-3.93E+01,-4.52E+01,,,
 1,-2.91E+00,-2.91E+00,-1.75E+01,-2.44E+01,-1.97E+01,-2.38E+01,-2.80E+01,,,
