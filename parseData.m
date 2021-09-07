@@ -2,12 +2,10 @@ function [X, y, params, t, m] = parseData(all_data)
 
   fprintf('Manipulating Data ...\n\n')
 
-  params = all_data(1, 1:end) %First row lists all the parameters for the test
-
-
+  params = all_data(1, 1:end); %First row lists all the parameters for the test
   % tmp stuff
 
-  all_data = all_data(3:end, :)
+  all_data = all_data(3:end, :);
 
   t = all_data(2:end, 1);
   %t(t==0) = [];
@@ -21,7 +19,5 @@ function [X, y, params, t, m] = parseData(all_data)
 
   X = fcl_conc;
   y = chrono_data;
-
-  pause;
 
 end
