@@ -1,4 +1,4 @@
-function plotDataOs(x, y, x_label, y_label, title_label)
+function plotDataOs(x, y, x_label, y_label, title_label, position)
 %PLOTDATA Plots the data points x and y into a new figure
 %   PLOTDATA(x,y) plots the data points and gives the figure axes labels of
 %   population and profit.
@@ -21,6 +21,7 @@ plot(x, y, 'o', 'MarkerSize', 3, 'LineWidth', 0.75);
 xlabel(x_label);
 ylabel(y_label);
 title(title_label);
+movegui(position);
 
 % ============================================================
 
