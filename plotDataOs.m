@@ -1,4 +1,4 @@
-function plotData(x, y, x_label, y_label, title_label, position)
+function plotDataOs(x, y, x_label, y_label, title_label, position)
 %PLOTDATA Plots the data points x and y into a new figure
 %   PLOTDATA(x,y) plots the data points and gives the figure axes labels of
 %   population and profit.
@@ -16,7 +16,8 @@ figure; % open a new figure window
 %       appear as red crosses. Furthermore, you can make the
 %       markers larger by using plot(..., 'rx', 'MarkerSize', 10);
 
-plot(x, y);
+
+plot(x, y, 'o', 'MarkerSize', 3, 'LineWidth', 0.75);
 xlabel(x_label);
 ylabel(y_label);
 title(title_label);
