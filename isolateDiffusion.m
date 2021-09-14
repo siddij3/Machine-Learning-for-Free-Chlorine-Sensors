@@ -1,0 +1,3 @@
+function D = isolateDiffusion()
+
+end
