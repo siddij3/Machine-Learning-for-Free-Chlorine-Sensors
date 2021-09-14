@@ -8,8 +8,6 @@ function [fcl_conc, chrono_data, params, t, m] = parseData(all_data)
 
   %time
   t = all_data(2:end, 1);
-
-
   chrono_data = all_data(:, 2:end);
 
   % if the thing has lots of zeroes, then best to remove them somehow
