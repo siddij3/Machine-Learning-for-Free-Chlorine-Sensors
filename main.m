@@ -25,37 +25,32 @@ for num_iterations = 1:length(all_data)
 
 
   %% =========== Part 2: Obtain theortically meaningful information =============
-  % y = A*exp(-t/RC)
-  y_log = log(-chrono_data);
-  plotDataOs(t, y_log, 'Time (t) (x)','ln(Current) (ln(µA)) (y)', ...
-  'Natural log of chronoamperometry data', 'northwest');
+  % chronoamperometry equation is I(t) = k*t^(-0.5)
+  sensorArea = pi*3; % Diameter is 3 mm
+  F = 96485.332; % C/mol
 
-  % This is the 1/RC value; negative is to remove the negative slope
-  RC_inverse = -findDerivative(t, y_log);
-  RC = 1./RC_inverse;
-
-  plotData(t(2:end), RC_inverse, 'Time (t) (x)','RC values (1 / ΩF) (y)', ...
-  'Changing 1/RC values with changing time', 'north');
-
-  plotData(t(2:end), RC, 'Time (t) (x)','RC values (ΩF) (y)', ...
-  'Changing RC values with changing time', 'northeast');
-
-  %plot the changing RC with the free chlorine concetration
-  plotData(fcl_conc, RC, 'Free Chlorine concetration (ppm) (x)',...
-  '1/RC values (ΩF) (y)', 'Changing RC with change in free chlorine', 'southeast');
-
-  LnA = findLnA(t, y_log, 1./RC);
-
-  plotData(fcl_conc, LnA, 'Free Chlorine concetration (ppm) (x)',...
-  'ln(A) values (ln(I)) (y)', 'Changing A params with change in free chlorine', 'south');
-
-  plotData(t(2:end), LnA, 'Time (s) (x)',...
-  'ln(A) values (ln(I)) (y)', 'Changing A params with change in time', 'southwest');
+  k = isolateConstants(t, chrono_data);
+  plotData(t(1:51), k(1:51, :), 'Time (t)','Cottrel Constant k (A*t^{1/2}', ...
+  'Isolating the Cottrel Constant (k) w.r.t. I*t^{1/2}', 'north');
 
 
+
+  % Plot Current / area  vs.  1/root(time) - Should give me a linear plot?
+  %I_A = (chrono_data * sqrt(pi) ) / (sensorArea * F);
+  I_A = (chrono_data) / sensorArea;
+
+  D_a = isolateDiffusion(t, chrono_data);
+
+  plotData(1./sqrt(t)(1:51), I_A(1:51, :), 'Time (t^{-1/2} (s^{-1/2})','Current per Area (A/mm^2)', ...
+  'Finding the slope of Diffusion and other relevant parameters', 'northeast');
   pause;
 
-  %%=============== Part 3: Linear Regression Analysis on logorithmic data
+  % Identify relationship between voltage and other Parameters
+    %For this, see regular expressions
+
+
+
+  %%======== Part 3: Linear Regression Analysis on logorithmic data=====
 #{
 
   lambda = 0; %Review what this lambda is for (For high variance. Not needed atm)
@@ -66,11 +61,11 @@ for num_iterations = 1:length(all_data)
   end
   %plot(t(30:end), reshape(log(log(-y*10)), [51, 10])(30:end, :), 'x', 'MarkerSize', 3, 'LineWidth', 0.75)
 
-  pause;
+
   plot(t, chrono_data, 'o', 'MarkerSize', 3, 'LineWidth', 0.75)
   xlabel('Time (t) (x)');
-  ylabel('Current ()µA) (y)');
-
+  ylabel('Current (µA) (y)');
+  hold on;
   plot(X(:  , 2), X*theta_chrono, '--', 'LineWidth', 1)
 
   hold off;
@@ -80,8 +75,6 @@ for num_iterations = 1:length(all_data)
 
 
   % =========== Part 3: Train Linear Regression with sensitivity =============
-
-
   lambda = 0; %Review what this lambda is for
   theta_sens = zeros(2, length(chrono_data));
 
