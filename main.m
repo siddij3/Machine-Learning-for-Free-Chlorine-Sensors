@@ -14,42 +14,36 @@ for num_iterations = 1:length(all_data)
 %% ==================== Part 1: Parsing Data ====================
 
   fprintf('Separating Data ...\n\n');
-  [fcl_conc, chrono_data,  params, t, m] = parseData(all_data{num_iterations}, num_iterations);
+  [fcl_ppm, chrono_data,  params, t, m] = parseData(all_data{num_iterations}, num_iterations);
 
   fprintf(filepath(num_iterations).name);
   fprintf('\n\n');
 
   fprintf('Making matrix of Parameters ...\n\n');
-  X = settingChronoParams(fcl_conc, t, params);
+  X = settingChronoParams(fcl_ppm, t, params);
   X_scaled = featureScaling(X);
 
 
   %% =========== Part 2: Obtain theortically meaningful information =============
   % chronoamperometry equation is I(t) = k*t^(-0.5)
-  sensorArea = pi*3; % Diameter is 3 mm
+  sensorArea = pi*(1.5E-3)^2; % Area is in m^2. Diameter is 3mm
   F = 96485.332; % C/mol
 
   k = isolateConstants(t, chrono_data);
-  plotData(t(1:51), k(1:51, :), 'Time (t)','Cottrel Constant k (A*t^{1/2}', ...
+  plotData(t(1:51), -k(1:51, :), 'Time (t)','Cottrel Constant k (A*s^{1/2})', ...
   'Isolating the Cottrel Constant (k) w.r.t. I*t^{1/2}', 'north');
 
-
-
   % Plot Current / area  vs.  1/root(time) - Should give me a linear plot?
-  %I_A = (chrono_data * sqrt(pi) ) / (sensorArea * F);
   I_A = (chrono_data) / sensorArea;
 
-  D_a = isolateDiffusion(t, chrono_data);
+  fcl_conc = convertPPM(fcl_ppm)
+  D_a = isolateDiffusion(t, chrono_data, fcl_ppm, sensorArea, F);
 
-  plotData(1./sqrt(t)(1:51), I_A(1:51, :), 'Time (t^{-1/2} (s^{-1/2})','Current per Area (A/mm^2)', ...
+  plotData(1./sqrt(t)(1:51), -I_A(1:51, :), 'Time (t^{-1/2} (s^{-1/2})','Current per Area (A/mm^2)', ...
   'Finding the slope of Diffusion and other relevant parameters', 'northeast');
   pause;
-
   % Identify relationship between voltage and other Parameters
     %For this, see regular expressions
-
-
-
   %%======== Part 3: Linear Regression Analysis on logorithmic data=====
 #{
 
@@ -79,10 +73,10 @@ for num_iterations = 1:length(all_data)
   theta_sens = zeros(2, length(chrono_data));
 
   for i = 1:length(chrono_data)
-    [theta_sens(:, i)] = trainLinearReg(fcl_conc, chrono_data(:, i), lambda);
+    [theta_sens(:, i)] = trainLinearReg(fcl_ppm, chrono_data(:, i), lambda);
   end
   %  Plot fit over the data
-  plotFit_reduced(fcl_conc, chrono_data, theta_sens, m, filepath(num_iterations).name);
+  plotFit_reduced(fcl_ppm, chrono_data, theta_sens, m, filepath(num_iterations).name);
   hold off;
 
   fprintf('Program paused. Press enter to continue.\n\n');
