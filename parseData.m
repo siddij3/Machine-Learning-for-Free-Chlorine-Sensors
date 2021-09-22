@@ -1,7 +1,17 @@
 function [fcl_conc, chrono_data, params, t, m] = parseData(all_data)
 
   %First row lists all the parameters for the test
-  params = all_data(1, 1:end);
+
+  %  1          |          2       |       3              |       4
+  % Operating V |	GO Conc. ( mol/L)|	Amine Conc. (mol/L) |	NaOH Conc. (mol/L)
+
+  %        5       |        6        |         7          |         8         |
+  % Rxn. Time (hr) |	Rxn. Temp (°C) | Mixing speed (rpm) |	Drying time (min) |
+
+  %        9         |        10         |         11          |
+  % Drying Temp (°C) |	Centrifuge (rpm) |	Centrifuge (min)
+
+  params = all_data(1, 1:11);
 
   % Remaining data is the time, free chlorine concetration and current values
   all_data = all_data(3:end, :);
