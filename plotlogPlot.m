@@ -7,7 +7,7 @@ title(title_label);
 %xlim([1E-6 2E-4]);
 %ylim([1E-8 2E-5]);
 xlim([1E-5 2E-4]);
-ylim([5E-8 2E-6]);
+ylim([3E-8 2E-6]);
 movegui(position);
 hold on;
 loglog(x(:, 2), x*theta, '--', 'LineWidth', 1)
