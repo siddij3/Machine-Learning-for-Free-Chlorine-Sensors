@@ -14,20 +14,22 @@ all_data = loadData(filepath, 'csv');
 % 3D Array. X: across fcl ; Y: Average, STD ; Z: Different data sets
 Diffusion_avg_std = {};
 total_fcl_conc = {};
+total_chrono_data = {};
 
 total_params = [];
 voltageApplied = [];
 % -----------------------------------------------------------------
 
 % DECLARING CONSTANTS--------------------------------------------
-SENSOR_AREA = pi*(1.5)^2; % Area is in mm^2. Diameter is 3 mm
-FARADAYS_CONSTANT = 96485332; % µC/mol because the main units we're using are µC
+SENSOR_RADIUS = 1.5E-3; %units are in m;
+SENSOR_AREA = pi*(SENSOR_RADIUS)^2; % Area is in m^2. Diameter is 3E-3 m
+FARADAYS_CONSTANT = 96485.332; % C/mol because they're standard units
 START_TIME = 21;
 MID_TIME = 31;
 END_TIME = 51;
 %--------------------------------------------------------------------
 
-for num_iterations = 1:length(all_data)
+for num_iterations = 2:2 %:length(all_data)
   close all;
 %% ==================== Part 1: Parsing Data ====================
 
@@ -44,50 +46,54 @@ for num_iterations = 1:length(all_data)
   X_scaled = featureScaling(X);
 
   %%================== Separating Parameters ==================================
-    voltageApplied(num_iterations) = params(1); %Make this a function later
+  voltageApplied(num_iterations) = params(1); %Make this a function later
 
 
   %% ================== Part 2: Obtain  meaningful information =================
-  % chronoamperometry equation is I(t) = k*t^(-0.5)
 
-  % Plot Current / area  vs.  1/root(time) - Should give me a linear plot?
+  % Plot Current / area
   I_A = (chrono_data) / SENSOR_AREA;
   fcl_conc = convertPPM(fcl_ppm); %in mol/L
   total_fcl_conc{num_iterations} = [ fcl_conc; fcl_ppm];
 
+  total_chrono_data{num_iterations} = [chrono_data(MID_TIME:end, :)];
+
   % D_a: units in mm^2 / s
-  % Units   :                   (s,         µA,     mol/L,        mm^2,            µC/mol)
+  % Units   :                       (s,         A,     mol/L,        m^2,            C/mol)
   Diffusion_const = isolateDiffusion(t, chrono_data, fcl_conc, SENSOR_AREA, FARADAYS_CONSTANT);
 
   Diffusion_avg_std{num_iterations} = ...
   [ mean(Diffusion_const(START_TIME:END_TIME, :)); ...
     std(Diffusion_const(START_TIME:END_TIME, :))];
 
-  %Units: µA/s^1/2
-  k = isolateConstants(t, chrono_data);
-#{
-  plotData(1./sqrt(t)(1:END_TIME), -chrono_data(1:END_TIME, :), ...
-  'Time (t^{-1/2} (s^{-1/2})', ...
-  'Current per Area (A/mm^2)', ...
-  'Finding the slope of Diffusion and other relevant parameters', 'northeast');
+  %plot(t(2:end), tmp);
+  %% ================== Part 2b: Time Constants =================
 
-  plotData(t(1:END_TIME), -k(1:END_TIME, :), ...
-  'Time (t)', ...
-  'Cottrel Constant k (A*s^{1/2})', ...
-  'Isolating the Cottrel Constant (k) w.r.t. I*t^{1/2}', 'north');
+  % Units:                   (s,           mm^2/s,           mm)
 
-  plotData(fcl_conc, Diffusion_const(MID_TIME:END_TIME, :), ...
-  'Free chlorine Concetration (mol/L)', ...
-  'Diffusion (Area/Second) (mm^2/s)', ...
-  'Diffusion rate of Free chlorine with varying concentrations', 'southeast');
+  %% ================== PLOTS ====================================
+
+
+
 
   plotData(t(1:END_TIME), Diffusion_const(1:END_TIME, :), ...
   'Time (s)', ...
   'Diffusion (Area/Second) (mm^2/s)', ...
   'Diffusion of Free chlorine over time', 'south');
 
+
+
+  plotData(1./sqrt(t)(MID_TIME:END_TIME), -chrono_data(MID_TIME:END_TIME, :), ...
+  'Time (t^{-1/2} (s^{-1/2})', ...
+  'Current per Area (µA/mm^2)', ...
+  'Finding the slope of Diffusion and other relevant parameters', 'northeast');
+
+  plotData(fcl_conc, Diffusion_const(MID_TIME:END_TIME, :), ...
+  'Free chlorine Concetration (mol/L)', ...
+  'Diffusion (Area/Second) (mm^2/s)', ...
+  'Diffusion rate of Free chlorine with varying concentrations', 'southeast');
   pause;
-#}
+
 end
 
 DIFF_AVG_INDEX = 1;
@@ -107,12 +113,12 @@ lambda = 0;
 % Identify relationship between voltage and other Parameters
   %For this, see regular expressions
   figure;
-for i = 2:LENGTH_DIFFUSION_SAMPLES
+for i = 1:LENGTH_DIFFUSION_SAMPLES
 
-  x = log(total_fcl_conc{i}(FCL_CONC_INDEX,:));
+  x = log10(total_fcl_conc{i}(FCL_CONC_INDEX,:));
   x(isinf(x)) = [];
 
-  y = log(Diffusion_avg_std{i}(DIFF_AVG_INDEX,:));
+  y = log10(Diffusion_avg_std{i}(DIFF_AVG_INDEX,:));
   y(isnan(y)) = [];
 
   m = size(x)(2);
@@ -122,50 +128,63 @@ for i = 2:LENGTH_DIFFUSION_SAMPLES
   [theta_diffusion(:, i)] = trainLinearReg(X, y' , lambda);
 
   plotFit_reduced(X, y, theta_diffusion(:, i), ...
-      'Concentration of Free Chlorine (mol/L)',
-      'Diffusion of Free Chlorine (mm^2/s)' ,
-      'Log Plot of Diffusion of Free Chlorine vs. Concentration',
+      'Log of Concentration of Free Chlorine (log(mol/L))',
+      'Log of Diffusion of Free Chlorine (mm^2/s)' ,
+      'Plot of Log relationship of Diffusion of Free Chlorine vs. Concentration',
       'north',
-      false);
+      2);
       hold on;
       grid on;
 
 
-run
 end
-hold off;
 pause;
+hold off;
 
-plotDataOs(voltageApplied, theta_diffusion(1, :), ...
-'Applied Voltage (V)', ...
-'Slope of ln(Diffusion) vs. ln(Concentration) (ln(mm^2/s)/ln(mol/L))', ...
-'Trend of Diffusion with concentrations vs Applied voltage', ...
-'south');
 
 plotDataOs(voltageApplied, theta_diffusion(2, :), ...
 'Applied Voltage (V)', ...
-'Intercept of ln(Diffusion) (ln(mm^2/s))', ...
-'Intercept values vs. Applied voltage', ...
+'Slope of log(Diffusion) vs. log(Concentration) (log(mm^2/s)/log(mol/L))', ...
+'Trend of Diffusion with concentrations vs Applied voltage', ...
 'south');
 
+pause;
 
-% UNTIL HERE THANKS
-
-
-% (This should go at the end of the for loop)
   % =========== Part 3: Train Linear Regression with sensitivity =============
-#{
-This is terribly done lol/
-  lambda = 0;
-  theta_sens = zeros(2, length(chrono_data));
+  theta_sens = {};
+  for i = 1:LENGTH_DIFFUSION_SAMPLES
 
-  X = [ones(length(fcl_ppm), 1), fcl_ppm'];
+    x = total_fcl_conc{i}(FCL_CONC_INDEX,:);
+    x(isinf(x)) = [];
 
-  for i = 1:length(chrono_data)
-    [theta_sens(:, i)] = trainLinearReg(X, chrono_data(i, :)', lambda);
-  end
-  %  Plot fit over the data
+    y = total_chrono_data{i}(i, :);
+    y(isnan(y)) = [];
+
+    m = size(x)(2);
+
+    X = [ones(m, 1), x'];
+
+    for j = 1:length(total_chrono_data{i})
+      [theta_sens{i}(:, j)] = trainLinearReg(X, total_chrono_data{i}(j, :)' , lambda);
+    end
+
+    sens_tmp_intercept(i) = theta_sens{i}(1, 21);
+    sens_tmp(i) = theta_sens{i}(2, 21);
+
+    %figure;
+    plotFit_reduced(X, y, theta_sens{i}(:, i), ...
+        'Free chlorine concentration', ...
+        'Current (µC)', ...
+        'sensitivity', ...
+        'north',
+        false);
+        hold on;
+        grid on;
+end
 
 
-  hold off;
-  #}
+plotDataOs(voltageApplied, sens_tmp, ...
+'Applied Voltage (V)', ...
+'Sensitivity (µA/(mol/L))', ...
+'Trend of Sensitivity with Applied voltage', ...
+'south');

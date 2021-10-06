@@ -16,7 +16,6 @@ figure; % open a new figure window
 %       appear as red crosses. Furthermore, you can make the
 %       markers larger by using plot(..., 'rx', 'MarkerSize', 10);
 
-
 plot(x, y, 'o', 'MarkerSize', 3, 'LineWidth', 0.75);
 xlabel(x_label);
 ylabel(y_label);
